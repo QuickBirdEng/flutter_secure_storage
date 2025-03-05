@@ -5,6 +5,9 @@ import android.content.res.Configuration;
 import android.os.Build;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
+import android.security.keystore.StrongBoxUnavailableException;
+
+import androidx.annotation.RequiresApi;
 
 import com.it_nomads.fluttersecurestorage.FlutterSecureStorageConfig;
 
@@ -137,26 +140,38 @@ class KeyCipherImplementationRSA18 implements KeyCipher {
         context.createConfigurationContext(config);
     }
 
+    private AlgorithmParameterSpec getSpec(boolean isStrongBoxBacked) {
+        Calendar start = Calendar.getInstance();
+        Calendar end = Calendar.getInstance();
+        end.add(Calendar.YEAR, 25);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            return makeAlgorithmParameterSpecLegacy(context, start, end);
+        }
+
+        return makeAlgorithmParameterSpec(context, start, end, isStrongBoxBacked);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.P)
     private void createKeys(Context context) throws Exception {
         final Locale localeBeforeFakingEnglishLocale = Locale.getDefault();
         try {
             setLocale(Locale.ENGLISH);
-            Calendar start = Calendar.getInstance();
-            Calendar end = Calendar.getInstance();
-            end.add(Calendar.YEAR, 25);
 
             KeyPairGenerator kpGenerator = KeyPairGenerator.getInstance(TYPE_RSA, KEYSTORE_PROVIDER_ANDROID);
 
             AlgorithmParameterSpec spec;
 
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-                spec = makeAlgorithmParameterSpecLegacy(context, start, end);
-            } else {
-                spec = makeAlgorithmParameterSpec(context, start, end);
-            }
+            try {
+                spec = getSpec(true);
 
-            kpGenerator.initialize(spec);
-            kpGenerator.generateKeyPair();
+                kpGenerator.initialize(spec);
+                kpGenerator.generateKeyPair();
+            } catch (StrongBoxUnavailableException e) {
+                spec = getSpec(false);
+
+                kpGenerator.initialize(spec);
+                kpGenerator.generateKeyPair();
+            }
         } finally {
             setLocale(localeBeforeFakingEnglishLocale);
         }
@@ -174,7 +189,8 @@ class KeyCipherImplementationRSA18 implements KeyCipher {
                 .build();
     }
 
-    protected AlgorithmParameterSpec makeAlgorithmParameterSpec(Context context, Calendar start, Calendar end) {
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    protected AlgorithmParameterSpec makeAlgorithmParameterSpec(Context context, Calendar start, Calendar end, boolean isStrongBoxBacked) {
         final KeyGenParameterSpec.Builder builder = new KeyGenParameterSpec.Builder(keyAlias, KeyProperties.PURPOSE_DECRYPT | KeyProperties.PURPOSE_ENCRYPT)
                 .setCertificateSubject(new X500Principal("CN=" + keyAlias))
                 .setDigests(KeyProperties.DIGEST_SHA256)
@@ -183,6 +199,9 @@ class KeyCipherImplementationRSA18 implements KeyCipher {
                 .setCertificateSerialNumber(BigInteger.valueOf(1))
                 .setCertificateNotBefore(start.getTime())
                 .setCertificateNotAfter(end.getTime());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && isStrongBoxBacked) {
+            builder.setIsStrongBoxBacked(true);
+        }
         return builder.build();
     }
 }

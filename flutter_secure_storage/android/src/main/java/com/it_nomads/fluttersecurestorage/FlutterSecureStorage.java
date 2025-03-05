@@ -1145,7 +1145,7 @@ public class FlutterSecureStorage {
                                 .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
                                 .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
                                 .setKeySize(256).build())
-                .build();
+                .build(config.getOnlyAllowStrongBox());
         return EncryptedSharedPreferences.create(
                 context,
                 config.getSharedPreferencesName(),

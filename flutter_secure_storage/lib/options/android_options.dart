@@ -51,6 +51,7 @@ class AndroidOptions extends Options {
     bool resetOnError = true,
     bool migrateOnAlgorithmChange = true,
     bool enforceBiometrics = false,
+    bool onlyAllowStrongBox = false,
     KeyCipherAlgorithm keyCipherAlgorithm =
         KeyCipherAlgorithm.RSA_ECB_OAEPwithSHA_256andMGF1Padding,
     StorageCipherAlgorithm storageCipherAlgorithm =
@@ -63,6 +64,7 @@ class AndroidOptions extends Options {
         _resetOnError = resetOnError,
         _migrateOnAlgorithmChange = migrateOnAlgorithmChange,
         _enforceBiometrics = enforceBiometrics,
+        _onlyAllowStrongBox = onlyAllowStrongBox,
         _keyCipherAlgorithm = keyCipherAlgorithm,
         _storageCipherAlgorithm = storageCipherAlgorithm;
 
@@ -83,6 +85,7 @@ class AndroidOptions extends Options {
     bool resetOnError = true,
     bool migrateOnAlgorithmChange = true,
     bool enforceBiometrics = false,
+    bool onlyAllowStrongBox = false,
     this.sharedPreferencesName,
     this.preferencesKeyPrefix,
     this.biometricPromptTitle,
@@ -91,6 +94,7 @@ class AndroidOptions extends Options {
         _resetOnError = resetOnError,
         _migrateOnAlgorithmChange = migrateOnAlgorithmChange,
         _enforceBiometrics = enforceBiometrics,
+        _onlyAllowStrongBox = onlyAllowStrongBox,
         _keyCipherAlgorithm = KeyCipherAlgorithm.AES_GCM_NoPadding,
         _storageCipherAlgorithm = StorageCipherAlgorithm.AES_GCM_NoPadding;
 
@@ -127,6 +131,13 @@ class AndroidOptions extends Options {
   ///
   /// Defaults to false.
   final bool _enforceBiometrics;
+
+  /// If true, only allow keys to be stored in StrongBox backed keymaster.
+  /// This option is only available on API 28 and greater.
+  /// If set to true some phones might not work.
+  /// Defaults to false.
+  /// https://developer.android.com/training/articles/keystore#HardwareSecurityModule
+  final bool _onlyAllowStrongBox;
 
   /// Algorithm used to encrypt the secret key.
   /// By default RSA/ECB/OAEPWithSHA-256AndMGF1Padding is used (API 23+).
@@ -171,6 +182,7 @@ class AndroidOptions extends Options {
         'resetOnError': '$_resetOnError',
         'migrateOnAlgorithmChange': '$_migrateOnAlgorithmChange',
         'enforceBiometrics': '$_enforceBiometrics',
+        'onlyAllowStrongBox': '$_onlyAllowStrongBox',
         'keyCipherAlgorithm': _keyCipherAlgorithm.name,
         'storageCipherAlgorithm': _storageCipherAlgorithm.name,
         'sharedPreferencesName': sharedPreferencesName ?? '',
@@ -187,6 +199,7 @@ class AndroidOptions extends Options {
     bool? resetOnError,
     bool? migrateOnAlgorithmChange,
     bool? enforceBiometrics,
+    bool? onlyAllowStrongBox,
     KeyCipherAlgorithm? keyCipherAlgorithm,
     StorageCipherAlgorithm? storageCipherAlgorithm,
     String? preferencesKeyPrefix,
@@ -203,6 +216,7 @@ class AndroidOptions extends Options {
         migrateOnAlgorithmChange:
             migrateOnAlgorithmChange ?? _migrateOnAlgorithmChange,
         enforceBiometrics: enforceBiometrics ?? _enforceBiometrics,
+        onlyAllowStrongBox: onlyAllowStrongBox ?? _onlyAllowStrongBox,
         keyCipherAlgorithm: keyCipherAlgorithm ?? _keyCipherAlgorithm,
         storageCipherAlgorithm:
             storageCipherAlgorithm ?? _storageCipherAlgorithm,

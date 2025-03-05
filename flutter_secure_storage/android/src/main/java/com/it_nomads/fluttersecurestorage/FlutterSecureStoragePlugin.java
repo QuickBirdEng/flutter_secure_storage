@@ -1,6 +1,7 @@
 package com.it_nomads.fluttersecurestorage;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -26,10 +27,12 @@ public class FlutterSecureStoragePlugin implements MethodCallHandler, FlutterPlu
     private FlutterSecureStorage secureStorage;
     private HandlerThread workerThread;
     private Handler workerThreadHandler;
+    private boolean isStrongBoxAvailable;
 
     public void initInstance(BinaryMessenger messenger, Context context) {
         try {
             secureStorage = new FlutterSecureStorage(context);
+            isStrongBoxAvailable = context.getApplicationContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_STRONGBOX_KEYSTORE);
 
             workerThread = new HandlerThread("com.it_nomads.fluttersecurestorage.worker");
             workerThread.start();
@@ -178,6 +181,10 @@ public class FlutterSecureStoragePlugin implements MethodCallHandler, FlutterPlu
                             case "isBiometricAvailable": {
                                 boolean available = secureStorage.isBiometricAvailable();
                                 result.success(available);
+                                break;
+                            }
+                            case "isStrongBoxSupported": {
+                                result.success(isStrongBoxAvailable);
                                 break;
                             }
                             case "isDeviceSecure": {

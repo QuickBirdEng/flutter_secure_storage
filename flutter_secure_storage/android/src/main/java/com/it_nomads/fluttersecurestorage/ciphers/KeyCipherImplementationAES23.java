@@ -138,6 +138,7 @@ class KeyCipherImplementationAES23 implements KeyCipher {
         // Check if device has security (PIN/biometric) configured
         boolean deviceHasSecurity = isDeviceSecure();
         boolean enforceBiometrics = config.getEnforceBiometrics();
+        boolean isStrongBoxBacked = config.getOnlyAllowStrongBox();
 
         // ENFORCEMENT MODE: Fail if enforcement enabled but no device security
         if (enforceBiometrics && !deviceHasSecurity) {
@@ -177,7 +178,7 @@ class KeyCipherImplementationAES23 implements KeyCipher {
             builder.setUnlockedDeviceRequired(true);
 
             // Only enable StrongBox if it's available
-            if (isStrongBoxAvailable()) {
+            if (isStrongBoxBacked && isStrongBoxAvailable()) {
                 builder.setIsStrongBoxBacked(true);
                 Log.d(TAG, "StrongBox is available and enabled for biometric key");
             } else {
