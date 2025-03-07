@@ -17,12 +17,6 @@ flutter:
         default_package: flutter_secure_storage_darwin
       macos:
         default_package: flutter_secure_storage_darwin
-      linux:
-        default_package: flutter_secure_storage_linux
-      web:
-        default_package: flutter_secure_storage_web
-      windows:
-        default_package: flutter_secure_storage_windows
 
 dependencies:
   flutter:
@@ -69,7 +63,4 @@ dev_dependencies:
 platforms:
   android:
   ios:
-  linux:
   macos:
-  web:
-  windows:

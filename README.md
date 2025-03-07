@@ -126,53 +126,7 @@ If you have set your application up to use App Groups then you will need to add 
 
 If you are configuring this value through XCode then the string you set in the Keychain Sharing section would simply read "aoeu" with XCode appending the `$(AppIdentifierPrefix)` when it saves the configuration.
 
-### Web
 
-Flutter Secure Storage uses an experimental implementation using WebCrypto. Use at your own risk at this time. Feedback welcome to improve it. The intent is that the browser is creating the private key, and as a result, the encrypted strings in local_storage are not portable to other browsers or other machines and will only work on the same domain.
-
-**It is VERY important that you have HTTP Strict Forward Secrecy enabled and the proper headers applied to your responses or you could be subject to a javascript hijack.**
-
-Please see:
-
-- https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security
-- https://www.netsparker.com/blog/web-security/http-security-headers/
-
-#### application-specific key option
-
-On the web, all keys are stored in LocalStorage. flutter_secure_storage has an option for the web to wrap this stored key with an application-specific key to make it more difficult to analyze.
-
-```dart
-final _storage = const FlutterSecureStorage(
-  webOptions: WebOptions(
-    wrapKey: '${your_application_specific_key}',
-    wrapKeyIv: '${your_application_specific_iv}',
-  ),
-);
-```
-
-### Windows
-
-You need the C++ ATL libraries installed along with the rest of Visual Studio Build Tools. Download them from [here](https://visualstudio.microsoft.com/downloads/?q=build+tools) and make sure the C++ ATL under optional is installed as well.
-
-### Linux
-
-You need `libsecret-1-dev` and `libjsoncpp-dev` on your machine to build the project, and `libsecret-1-0` and `libjsoncpp1` to run the application (add it as a dependency after packaging your app). If you using snapcraft to build the project use the following
-
-```yaml
-parts:
-  uet-lms:
-    source: .
-    plugin: flutter
-    flutter-target: lib/main.dart
-    build-packages:
-      - libsecret-1-dev
-      - libjsoncpp-dev
-    stage-packages:
-      - libsecret-1-0
-      - libjsoncpp-dev
-```
-
-Apart from `libsecret` you also need a keyring service, for that you need either `gnome-keyring` (for Gnome users) or `ksecretsservice` (for KDE users) or other light provider like [`secret-service`](https://github.com/yousefvand/secret-service).
 
 ## Integration Tests
 
