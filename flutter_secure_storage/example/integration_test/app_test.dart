@@ -1,4 +1,7 @@
+import 'dart:io' show Platform;
+
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_secure_storage_example/main.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -77,6 +80,121 @@ void main() {
       pageObject
         ..verifyRowDoesNotExist(0)
         ..verifyRowDoesNotExist(1);
+    });
+
+    testWidgets('Enclave requested on iOS Simulator falls back gracefully',
+        skip: !(Platform.isIOS &&
+            Platform.environment.containsKey('SIMULATOR_DEVICE_NAME')),
+        (WidgetTester tester) async {
+      const storage = FlutterSecureStorage();
+      const key = 'it_enclave_sim_fallback_key';
+      const value = 'sim_fallback_secret';
+
+      // Write with enclave requested
+      // ignore: undefined_named_parameter
+      await storage.write(
+        key: key,
+        value: value,
+        iOptions: const IOSOptions(useSecureEnclave: true),
+      );
+
+      // Read should succeed due to fallback
+      // ignore: undefined_named_parameter
+      final readBack = await storage.read(
+        key: key,
+        iOptions: const IOSOptions(useSecureEnclave: true),
+      );
+      expect(readBack, value);
+
+      // Delete should also succeed
+      // ignore: undefined_named_parameter
+      await storage.delete(
+        key: key,
+        iOptions: const IOSOptions(useSecureEnclave: true),
+      );
+      final afterDelete = await storage.read(
+        key: key,
+        iOptions: const IOSOptions(useSecureEnclave: true),
+      );
+      expect(afterDelete, isNull);
+    });
+
+    testWidgets(
+        'iOS device: baseline (useSecureEnclave=false) write/read/delete',
+        skip: !(Platform.isIOS &&
+            !Platform.environment.containsKey('SIMULATOR_DEVICE_NAME')),
+        (WidgetTester tester) async {
+      const storage = FlutterSecureStorage();
+      const key = 'it_enclave_device_baseline_key';
+      const value = 'device_baseline_secret';
+
+      await storage.write(
+        key: key,
+        value: value,
+        iOptions: IOSOptions.defaultOptions,
+      );
+
+      final readBack = await storage.read(
+        key: key,
+        iOptions: IOSOptions.defaultOptions,
+      );
+      expect(readBack, value);
+
+      await storage.delete(
+        key: key,
+        iOptions: IOSOptions.defaultOptions,
+      );
+      final afterDelete = await storage.read(
+        key: key,
+        iOptions: IOSOptions.defaultOptions,
+      );
+      expect(afterDelete, isNull);
+    });
+
+    testWidgets(
+        'iOS device: useSecureEnclave=true with non-prompting access control (applicationPassword) write/read/delete',
+        skip: !(Platform.isIOS &&
+            !Platform.environment.containsKey('SIMULATOR_DEVICE_NAME')),
+        (WidgetTester tester) async {
+      const storage = FlutterSecureStorage();
+      const key = 'it_enclave_device_enabled_key';
+      const value = 'device_enclave_secret';
+
+      await storage.write(
+        key: key,
+        value: value,
+        // Use a non-prompting flag to make test automation stable.
+        // ignore: undefined_named_parameter
+        iOptions: const IOSOptions(
+          useSecureEnclave: true,
+          accessControlFlags: [AccessControlFlag.applicationPassword],
+        ),
+      );
+
+      final readBack = await storage.read(
+        key: key,
+        iOptions: const IOSOptions(
+          useSecureEnclave: true,
+          accessControlFlags: [AccessControlFlag.applicationPassword],
+        ),
+      );
+      expect(readBack, value);
+
+      await storage.delete(
+        key: key,
+        iOptions: const IOSOptions(
+          useSecureEnclave: true,
+          accessControlFlags: [AccessControlFlag.applicationPassword],
+        ),
+      );
+      final afterDelete = await storage.read(
+        key: key,
+        iOptions: const IOSOptions(
+          useSecureEnclave: true,
+          accessControlFlags: [AccessControlFlag.applicationPassword],
+        ),
+      );
+      expect(afterDelete, isNull);
     });
   });
 }
