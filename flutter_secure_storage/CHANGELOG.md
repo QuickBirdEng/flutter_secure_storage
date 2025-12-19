@@ -1,7 +1,6 @@
 ## Fork
 
 * Enabled StrongBox by default, use fallback if it's not available.
-* [Android] Allow to force StrongBox with a flag (onlyAllowStrongBox)
 * [Android] Method to check if an Android device supports Strongbox
 
 ## 10.0.0

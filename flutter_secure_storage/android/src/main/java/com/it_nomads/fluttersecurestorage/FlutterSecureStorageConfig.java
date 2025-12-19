@@ -12,7 +12,6 @@ public class FlutterSecureStorageConfig {
     private static final Boolean DEFAULT_MIGRATE_ON_ALGORITHM_CHANGE = true;
     private static final Boolean DEFAULT_ENCRYPTED_SHARED_PREFERENCES = false;
     private static final Boolean DEFAULT_ENFORCE_BIOMETRICS = false;
-    private static final Boolean DEFAULT_ONLY_ALLOW_STRONGBOX = false;
     private static final String DEFAULT_BIOMETRIC_PROMPT_TITLE = "Authenticate to access";
     private static final String DEFAULT_BIOMETRIC_PROMPT_SUBTITLE = "Use biometrics or device credentials";
     private static final String DEFAULT_STORAGE_CIPHER_ALGORITHM = "AES_GCM_NoPadding";
@@ -24,7 +23,6 @@ public class FlutterSecureStorageConfig {
     public static final String PREF_OPTION_MIGRATE_ON_ALGORITHM_CHANGE = "migrateOnAlgorithmChange";
     public static final String PREF_OPTION_ENCRYPTED_SHARED_PREFERENCES = "encryptedSharedPreferences";
     public static final String PREF_OPTION_ENFORCE_BIOMETRICS = "enforceBiometrics";
-    public static final String PREF_OPTION_ONLY_ALLOW_STRONGBOX = "onlyAllowStrongBox";
     public static final String PREF_OPTION_BIOMETRIC_PROMPT_TITLE = "prefOptionBiometricPromptTitle";
     public static final String PREF_OPTION_BIOMETRIC_PROMPT_SUBTITLE = "prefOptionBiometricPromptSubtitle";
     public static final String PREF_OPTION_STORAGE_CIPHER_ALGORITHM = "storageCipherAlgorithm";
@@ -36,7 +34,6 @@ public class FlutterSecureStorageConfig {
     private final boolean migrateOnAlgorithmChange;
     private final boolean useEncryptedSharedPreferences;
     private final boolean enforceBiometrics;
-    private final boolean onlyAllowStrongBox;
     private final String biometricPromptTitle;
     private final String biometricPromptSubtitle;
     private final String keyCipherAlgorithm;
@@ -49,7 +46,6 @@ public class FlutterSecureStorageConfig {
         this.migrateOnAlgorithmChange = getBooleanOption(options, PREF_OPTION_MIGRATE_ON_ALGORITHM_CHANGE, DEFAULT_MIGRATE_ON_ALGORITHM_CHANGE);
         this.useEncryptedSharedPreferences = getBooleanOption(options, PREF_OPTION_ENCRYPTED_SHARED_PREFERENCES, DEFAULT_ENCRYPTED_SHARED_PREFERENCES);
         this.enforceBiometrics = getBooleanOption(options, PREF_OPTION_ENFORCE_BIOMETRICS, DEFAULT_ENFORCE_BIOMETRICS);
-        this.onlyAllowStrongBox = getBooleanOption(options, PREF_OPTION_ONLY_ALLOW_STRONGBOX, DEFAULT_ONLY_ALLOW_STRONGBOX);
         this.biometricPromptTitle = getStringOption(options, PREF_OPTION_BIOMETRIC_PROMPT_TITLE, DEFAULT_BIOMETRIC_PROMPT_TITLE);
         this.biometricPromptSubtitle = getStringOption(options, PREF_OPTION_BIOMETRIC_PROMPT_SUBTITLE, DEFAULT_BIOMETRIC_PROMPT_SUBTITLE);
         this.storageCipherAlgorithm = getStringOption(options, PREF_OPTION_STORAGE_CIPHER_ALGORITHM, DEFAULT_STORAGE_CIPHER_ALGORITHM);
@@ -84,7 +80,6 @@ public class FlutterSecureStorageConfig {
 
     public boolean isUseEncryptedSharedPreferences() { return useEncryptedSharedPreferences; }
     public boolean getEnforceBiometrics() { return enforceBiometrics; }
-    public boolean getOnlyAllowStrongBox() { return onlyAllowStrongBox; }
 
     public String getBiometricPromptTitle() { return biometricPromptTitle; }
     public String getPrefOptionBiometricPromptSubtitle() { return biometricPromptSubtitle; }
@@ -100,7 +95,6 @@ public class FlutterSecureStorageConfig {
                 ", deleteOnFailure=" + deleteOnFailure +
                 ", migrateOnAlgorithmChange=" + migrateOnAlgorithmChange +
                 ", enforceBiometrics=" + enforceBiometrics +
-                ", onlyAllowStrongBox=" + onlyAllowStrongBox +
                 '}';
     }
 }
