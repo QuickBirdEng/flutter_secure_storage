@@ -119,6 +119,7 @@ public class FlutterSecureStorageDarwinPlugin: NSObject, FlutterPlugin, FlutterS
     private func deleteAll(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         let (params, _) = parseCall(call)
         let response = flutterSecureStorageManager.deleteAll(params: params)
+        flutterSecureStorageManager.deleteEnclavePrivateKey(service: params.service)
         handleResponse(response, result)
     }
 

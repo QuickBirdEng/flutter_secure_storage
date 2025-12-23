@@ -247,7 +247,7 @@ class FlutterSecureStorage {
 
     /// Ensures a Secure Enclave EC private key exists for the provided service, creating it if needed.
     @available(iOS 11.3, macOS 10.15, *)
-    private func ensureEnclavePrivateKey(service: String?, accessControl: SecAccessControl?) throws -> SecKey {
+    private func ensureEnclavePrivateKey(service: String?) throws -> SecKey {
         let tag = enclaveKeyTag(for: service) as CFData
 
         let query: [CFString: Any] = [
@@ -271,6 +271,12 @@ class FlutterSecureStorage {
                 kSecAttrApplicationTag: tag
             ]
         ]
+       let accessControl = SecAccessControlCreateWithFlags(
+           nil,
+           kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
+           .privateKeyUsage,
+           nil
+       )
         if let ac = accessControl {
             var privateAttrs = attributes[kSecPrivateKeyAttrs] as! [CFString: Any]
             privateAttrs[kSecAttrAccessControl] = ac
@@ -480,7 +486,7 @@ class FlutterSecureStorage {
         if #available(iOS 11.3, macOS 10.15, *) {
             let ac = createAccessControl(params: params)
             do {
-                let privateKey = try ensureEnclavePrivateKey(service: params.service, accessControl: ac)
+                let privateKey = try ensureEnclavePrivateKey(service: params.service)
                 let aesKeyData = try unwrapSymmetricKey(wrappedKeyData, using: privateKey)
                 let key = SymmetricKey(data: aesKeyData)
                 // Encrypted blob format: nonce(12) + ciphertext+tag
@@ -558,7 +564,7 @@ class FlutterSecureStorage {
         if #available(iOS 11.3, macOS 10.15, *) {
             let ac = createAccessControl(params: params)
             do {
-                let privateKey = try ensureEnclavePrivateKey(service: params.service, accessControl: ac)
+                let privateKey = try ensureEnclavePrivateKey(service: params.service)
                 guard let publicKey = SecKeyCopyPublicKey(privateKey) else {
                     return FlutterSecureStorageResponse(status: errSecParam, value: nil)
                 }
@@ -714,6 +720,17 @@ class FlutterSecureStorage {
         var ref: AnyObject?
         let status = SecItemCopyMatching(query as CFDictionary, &ref)
         return FlutterSecureStorageResponse(status: status, value: ref)
+    }
+
+    internal func deleteEnclavePrivateKey(service: String?) {
+        let tag = enclaveKeyTag(for: service) as CFData
+
+        var query: [CFString: Any] = [
+            kSecClass: kSecClassKey,
+            kSecAttrKeyType: kSecAttrKeyTypeECSECPrimeRandom,
+            kSecAttrApplicationTag: tag
+        ]
+        SecItemDelete(query as CFDictionary)
     }
 }
 
