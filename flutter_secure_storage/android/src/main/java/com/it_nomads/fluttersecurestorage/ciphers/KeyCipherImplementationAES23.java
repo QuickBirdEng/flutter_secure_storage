@@ -184,7 +184,7 @@ class KeyCipherImplementationAES23 implements KeyCipher {
                 configureLegacyAuth(builder);
             }
 
-            builder.setInvalidatedByBiometricEnrollment(true);
+            builder.setInvalidatedByBiometricEnrollment(false);
         } else {
             // Explicitly set to false for clarity (default behavior)
             builder.setUserAuthenticationRequired(false);
@@ -229,7 +229,7 @@ class KeyCipherImplementationAES23 implements KeyCipher {
                         configureLegacyAuth(builder);
                     }
 
-                    builder.setInvalidatedByBiometricEnrollment(true);
+                    builder.setInvalidatedByBiometricEnrollment(false);
                 }
 
                 keyGenerator.init(builder.build());
