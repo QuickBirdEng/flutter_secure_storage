@@ -35,7 +35,7 @@ public class FlutterSecureStorage {
 
     private static final String TAG = "FlutterSecureStorage";
     private static final Charset charset = StandardCharsets.UTF_8;
-    private static final String SHARED_PREFERENCES_CONFIG_NAME = "FlutterSecureStorageConfiguration";
+    private static final String SHARED_PREFERENCES_CONFIG_NAME_SUFFIX = "Configuration";
 
     private FlutterSecureStorageConfig config;
     @NonNull
@@ -158,7 +158,7 @@ public class FlutterSecureStorage {
         );
 
         SharedPreferences configSource = context.getSharedPreferences(
-                SHARED_PREFERENCES_CONFIG_NAME,
+                config.getSharedPreferencesName() + SHARED_PREFERENCES_CONFIG_NAME_SUFFIX,
                 Context.MODE_PRIVATE
         );
 
