@@ -24,30 +24,32 @@ public class FlutterSecureStoragePlugin implements MethodCallHandler, FlutterPlu
 
     private static final String TAG = "FlutterSecureStoragePlugin";
     private MethodChannel channel;
-    private FlutterSecureStorage secureStorage;
     private HandlerThread workerThread;
     private Handler workerThreadHandler;
     private boolean isStrongBoxAvailable;
+    private FlutterPluginBinding binding;
 
-    public void initInstance(BinaryMessenger messenger, Context context) {
+    public FlutterSecureStorage initInstance(Context context) {
         try {
-            secureStorage = new FlutterSecureStorage(context);
-            isStrongBoxAvailable = context.getApplicationContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_STRONGBOX_KEYSTORE);
-
-            workerThread = new HandlerThread("com.it_nomads.fluttersecurestorage.worker");
-            workerThread.start();
-            workerThreadHandler = new Handler(workerThread.getLooper());
-
-            channel = new MethodChannel(messenger, "plugins.it_nomads.com/flutter_secure_storage");
-            channel.setMethodCallHandler(this);
+            return new FlutterSecureStorage(context);
         } catch (Exception e) {
             Log.e(TAG, "Registration failed", e);
+            return null;
         }
     }
 
     @Override
     public void onAttachedToEngine(FlutterPluginBinding binding) {
-        initInstance(binding.getBinaryMessenger(), binding.getApplicationContext());
+        this.binding = binding;
+
+        isStrongBoxAvailable = binding.getApplicationContext().getApplicationContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_STRONGBOX_KEYSTORE);
+
+        workerThread = new HandlerThread("com.it_nomads.fluttersecurestorage.worker");
+        workerThread.start();
+        workerThreadHandler = new Handler(workerThread.getLooper());
+
+        channel = new MethodChannel(binding.getBinaryMessenger(), "plugins.it_nomads.com/flutter_secure_storage");
+        channel.setMethodCallHandler(this);
     }
 
     @Override
@@ -59,7 +61,6 @@ public class FlutterSecureStoragePlugin implements MethodCallHandler, FlutterPlu
             channel.setMethodCallHandler(null);
             channel = null;
         }
-        secureStorage = null;
     }
 
     @Override
@@ -70,7 +71,7 @@ public class FlutterSecureStoragePlugin implements MethodCallHandler, FlutterPlu
     }
 
     @SuppressWarnings("unchecked")
-    private String getKeyFromCall(MethodCall call) {
+    private String getKeyFromCall(MethodCall call, FlutterSecureStorage secureStorage) {
         Map<String, Object> arguments = (Map<String, Object>) call.arguments;
         return secureStorage.addPrefixToKey((String) arguments.get("key"));
     }
@@ -129,6 +130,11 @@ public class FlutterSecureStoragePlugin implements MethodCallHandler, FlutterPlu
 
             if (call.method.equals("isStrongBoxSupported")) {
                 result.success(isStrongBoxAvailable);
+            }
+
+            FlutterSecureStorage secureStorage = initInstance(binding.getApplicationContext());
+            if (secureStorage == null) {
+                result.error("Could not initialize FlutterSecureStorage", null, null);
                 return;
             }
 
@@ -138,7 +144,7 @@ public class FlutterSecureStoragePlugin implements MethodCallHandler, FlutterPlu
                     try {
                         switch (call.method) {
                             case "write": {
-                                String key = getKeyFromCall(call);
+                                String key = getKeyFromCall(call, secureStorage);
                                 String value = getValueFromCall(call);
 
                                 if (value != null) {
@@ -150,7 +156,7 @@ public class FlutterSecureStoragePlugin implements MethodCallHandler, FlutterPlu
                                 break;
                             }
                             case "read": {
-                                String key = getKeyFromCall(call);
+                                String key = getKeyFromCall(call, secureStorage);
 
                                 if (secureStorage.containsKey(key)) {
                                     String value = secureStorage.read(key);
@@ -165,14 +171,14 @@ public class FlutterSecureStoragePlugin implements MethodCallHandler, FlutterPlu
                                 break;
                             }
                             case "containsKey": {
-                                String key = getKeyFromCall(call);
+                                String key = getKeyFromCall(call, secureStorage);
 
                                 boolean containsKey = secureStorage.containsKey(key);
                                 result.success(containsKey);
                                 break;
                             }
                             case "delete": {
-                                String key = getKeyFromCall(call);
+                                String key = getKeyFromCall(call, secureStorage);
 
                                 secureStorage.delete(key);
                                 result.success(null);
