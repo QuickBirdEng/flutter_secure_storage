@@ -128,6 +128,11 @@ public class FlutterSecureStoragePlugin implements MethodCallHandler, FlutterPlu
             Map<String, Object> options = (Map<String, Object>) ((Map<String, Object>) call.arguments).get("options");
             FlutterSecureStorageConfig config = new FlutterSecureStorageConfig(options);
 
+            if (call.method.equals("isStrongBoxSupported")) {
+                result.success(isStrongBoxAvailable);
+                return;
+            }
+
             FlutterSecureStorage secureStorage = initInstance(binding.getApplicationContext());
             if (secureStorage == null) {
                 result.error("Could not initialize FlutterSecureStorage", null, null);
@@ -188,10 +193,6 @@ public class FlutterSecureStoragePlugin implements MethodCallHandler, FlutterPlu
                             case "isBiometricAvailable": {
                                 boolean available = secureStorage.isBiometricAvailable();
                                 result.success(available);
-                                break;
-                            }
-                            case "isStrongBoxSupported": {
-                                result.success(isStrongBoxAvailable);
                                 break;
                             }
                             case "isDeviceSecure": {
