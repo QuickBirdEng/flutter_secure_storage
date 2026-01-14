@@ -3,6 +3,10 @@
 * [Android] Enabled StrongBox by default, use fallback if it's not available.
 * [Android] Method to check if an Android device supports Strongbox
 * [Android] Use old algorithms as default (migration to AES_GCM_NoPadding is broken and fails)
+* [Android] Set invalidatedByBiometricEnrollment to false
+* [Android] Create separate instances of FlutterSecureStorage with different configs/options
+* [Android] Use separate keys for different storage instances
+* [iOS] Add option to use secure enclave (based on [#989 PR](https://github.com/juliansteenbakker/flutter_secure_storage/pull/989))
 
 ## 10.0.0
 This major release brings significant security improvements, platform updates, and modernization across all supported platforms.
