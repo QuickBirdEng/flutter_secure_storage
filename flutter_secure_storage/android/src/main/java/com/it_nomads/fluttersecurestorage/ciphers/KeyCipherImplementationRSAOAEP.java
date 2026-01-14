@@ -32,7 +32,7 @@ class KeyCipherImplementationRSAOAEP extends KeyCipherImplementationRSA18 {
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
-    protected AlgorithmParameterSpec makeAlgorithmParameterSpec(Context context, Calendar start, Calendar end) {
+    protected AlgorithmParameterSpec makeAlgorithmParameterSpec(Context context, Calendar start, Calendar end, boolean isStrongBoxBacked) {
         final KeyGenParameterSpec.Builder builder = new KeyGenParameterSpec.Builder(keyAlias, KeyProperties.PURPOSE_DECRYPT | KeyProperties.PURPOSE_ENCRYPT)
                 .setCertificateSubject(new X500Principal("CN=" + keyAlias))
                 .setDigests(KeyProperties.DIGEST_SHA256)
@@ -41,6 +41,9 @@ class KeyCipherImplementationRSAOAEP extends KeyCipherImplementationRSA18 {
                 .setCertificateSerialNumber(BigInteger.valueOf(1))
                 .setCertificateNotBefore(start.getTime())
                 .setCertificateNotAfter(end.getTime());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && isStrongBoxBacked) {
+            builder.setIsStrongBoxBacked(true);
+        }
         return builder.build();
     }
 

@@ -1,6 +1,7 @@
 package com.it_nomads.fluttersecurestorage;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -26,10 +27,12 @@ public class FlutterSecureStoragePlugin implements MethodCallHandler, FlutterPlu
     private FlutterSecureStorage secureStorage;
     private HandlerThread workerThread;
     private Handler workerThreadHandler;
+    private boolean isStrongBoxAvailable;
 
     public void initInstance(BinaryMessenger messenger, Context context) {
         try {
             secureStorage = new FlutterSecureStorage(context);
+            isStrongBoxAvailable = context.getApplicationContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_STRONGBOX_KEYSTORE);
 
             workerThread = new HandlerThread("com.it_nomads.fluttersecurestorage.worker");
             workerThread.start();
@@ -123,6 +126,11 @@ public class FlutterSecureStoragePlugin implements MethodCallHandler, FlutterPlu
         public void run() {
             Map<String, Object> options = (Map<String, Object>) ((Map<String, Object>) call.arguments).get("options");
             FlutterSecureStorageConfig config = new FlutterSecureStorageConfig(options);
+
+            if (call.method.equals("isStrongBoxSupported")) {
+                result.success(isStrongBoxAvailable);
+                return;
+            }
 
             secureStorage.initialize(config, new SecurePreferencesCallback<>() {
                 @Override
