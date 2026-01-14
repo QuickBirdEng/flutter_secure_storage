@@ -130,6 +130,7 @@ public class FlutterSecureStoragePlugin implements MethodCallHandler, FlutterPlu
 
             if (call.method.equals("isStrongBoxSupported")) {
                 result.success(isStrongBoxAvailable);
+                return;
             }
 
             FlutterSecureStorage secureStorage = initInstance(binding.getApplicationContext());
