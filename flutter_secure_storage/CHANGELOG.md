@@ -2,6 +2,7 @@
 
 * [Android] (Feature) Method to check if an Android device supports Strongbox
 * [Android] (Fix) Create separate instances of FlutterSecureStorage with different configs/options
+* [Android] (Fix) Use separate keys for different storage instances
 * [Android] (Adjustment) Enabled StrongBox by default, use fallback if it's not available
 * [Android] (Adjustment) Set invalidatedByBiometricEnrollment to false
 * [iOS] (Feature) Add option to use secure enclave (based on [#989 PR](https://github.com/juliansteenbakker/flutter_secure_storage/pull/989))

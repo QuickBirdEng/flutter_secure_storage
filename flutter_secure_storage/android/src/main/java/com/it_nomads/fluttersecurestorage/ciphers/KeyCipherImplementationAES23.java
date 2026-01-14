@@ -29,11 +29,11 @@ class KeyCipherImplementationAES23 implements KeyCipher {
 
     private static final String TAG = "AESCipher23";
     private static final String KEYSTORE_PROVIDER_ANDROID = "AndroidKeyStore";
-    private static final String SHARED_PREFERENCES_NAME = "FlutterSecureKeyStorage";
-    private static final String SHARED_PREFERENCES_KEY = "KeyStoreIV1";
     private static final int IV_SIZE = 16;
     private static final int KEY_SIZE = 256;
     protected final String keyAlias;
+    protected final String ivStorageKey;
+    protected final String ivStoragePrefsName;
 
     protected final Context context;
     protected final FlutterSecureStorageConfig config;
@@ -42,6 +42,17 @@ class KeyCipherImplementationAES23 implements KeyCipher {
         this.context = context;
         this.config = config;
         keyAlias = createKeyAlias(context);
+
+        // Backward compatibility: use original storage names for default config
+        if ("FlutterSecureStorage".equals(config.getSharedPreferencesName())) {
+            ivStoragePrefsName = "FlutterSecureKeyStorage";
+            ivStorageKey = "KeyStoreIV1";
+        } else {
+            String configId = config.getSharedPreferencesName() + "_" + config.getSharedPreferencesKeyPrefix();
+            ivStoragePrefsName = "FlutterSecureKeyStorage_" + configId;
+            ivStorageKey = "KeyStoreIV1_" + configId;
+        }
+
         KeyStore ks = KeyStore.getInstance(KEYSTORE_PROVIDER_ANDROID);
         ks.load(null);
         Key privateKey = ks.getKey(keyAlias, null);
@@ -61,7 +72,13 @@ class KeyCipherImplementationAES23 implements KeyCipher {
     }
 
     protected String createKeyAlias(Context context) {
-        return context.getPackageName() + ".FlutterSecureStoragePluginKey";
+        // Backward compatibility: use original key name for default config
+        if ("FlutterSecureStorage".equals(config.getSharedPreferencesName())) {
+            return context.getPackageName() + ".FlutterSecureStoragePluginKey";
+        }
+
+        String configId = config.getSharedPreferencesName() + "_" + config.getSharedPreferencesKeyPrefix();
+        return context.getPackageName() + ".FlutterSecureStoragePluginKey_" + configId;
     }
 
     @Override
@@ -70,8 +87,8 @@ class KeyCipherImplementationAES23 implements KeyCipher {
         ks.load(null);
         ks.deleteEntry(keyAlias);
 
-        SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
-        preferences.edit().remove(SHARED_PREFERENCES_KEY).apply();
+        SharedPreferences preferences = context.getSharedPreferences(ivStoragePrefsName, Context.MODE_PRIVATE);
+        preferences.edit().remove(ivStorageKey).apply();
     }
 
     @Override
@@ -90,8 +107,8 @@ class KeyCipherImplementationAES23 implements KeyCipher {
 
     public Cipher getEncryptionCipher(Context context, Key key) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException {
         Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
-        SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
-        String ivBase64 = preferences.getString(SHARED_PREFERENCES_KEY, null);
+        SharedPreferences preferences = context.getSharedPreferences(ivStoragePrefsName, Context.MODE_PRIVATE);
+        String ivBase64 = preferences.getString(ivStorageKey, null);
 
         if (ivBase64 != null) {
             byte[] iv =  Base64.decode(ivBase64, Base64.DEFAULT);
@@ -103,7 +120,7 @@ class KeyCipherImplementationAES23 implements KeyCipher {
 
             byte[] iv = cipher.getIV();
             SharedPreferences.Editor editor = preferences.edit();
-            editor.putString(SHARED_PREFERENCES_KEY,  Base64.encodeToString(iv, Base64.DEFAULT));
+            editor.putString(ivStorageKey,  Base64.encodeToString(iv, Base64.DEFAULT));
             editor.apply();
         }
 
