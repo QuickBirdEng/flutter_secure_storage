@@ -48,13 +48,13 @@ class AndroidOptions extends Options {
         'Your data will be automatically migrated to custom ciphers on first '
         'access. Remove this parameter - it will be ignored.')
     bool encryptedSharedPreferences = false,
-    bool resetOnError = true,
+    bool resetOnError = false,
     bool migrateOnAlgorithmChange = true,
     bool enforceBiometrics = false,
     KeyCipherAlgorithm keyCipherAlgorithm =
-        KeyCipherAlgorithm.RSA_ECB_OAEPwithSHA_256andMGF1Padding,
+        KeyCipherAlgorithm.RSA_ECB_PKCS1Padding,
     StorageCipherAlgorithm storageCipherAlgorithm =
-        StorageCipherAlgorithm.AES_GCM_NoPadding,
+        StorageCipherAlgorithm.AES_CBC_PKCS7Padding,
     this.sharedPreferencesName,
     this.preferencesKeyPrefix,
     this.biometricPromptTitle,
@@ -80,7 +80,7 @@ class AndroidOptions extends Options {
         'The Jetpack Security library is deprecated by Google. '
         'Remove this parameter - it will be ignored.')
     bool encryptedSharedPreferences = false,
-    bool resetOnError = true,
+    bool resetOnError = false,
     bool migrateOnAlgorithmChange = true,
     bool enforceBiometrics = false,
     this.sharedPreferencesName,
@@ -91,8 +91,8 @@ class AndroidOptions extends Options {
         _resetOnError = resetOnError,
         _migrateOnAlgorithmChange = migrateOnAlgorithmChange,
         _enforceBiometrics = enforceBiometrics,
-        _keyCipherAlgorithm = KeyCipherAlgorithm.AES_GCM_NoPadding,
-        _storageCipherAlgorithm = StorageCipherAlgorithm.AES_GCM_NoPadding;
+        _keyCipherAlgorithm = KeyCipherAlgorithm.RSA_ECB_PKCS1Padding,
+        _storageCipherAlgorithm = StorageCipherAlgorithm.AES_CBC_PKCS7Padding;
 
   /// EncryptedSharedPrefences are only available on API 23 and greater
   final bool _encryptedSharedPreferences;

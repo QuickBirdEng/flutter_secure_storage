@@ -1,7 +1,8 @@
 ## Fork
 
-* Enabled StrongBox by default, use fallback if it's not available.
+* [Android] Enabled StrongBox by default, use fallback if it's not available.
 * [Android] Method to check if an Android device supports Strongbox
+* [Android] Use old algorithms as default (migration to AES_GCM_NoPadding is broken and fails)
 
 ## 10.0.0
 This major release brings significant security improvements, platform updates, and modernization across all supported platforms.
