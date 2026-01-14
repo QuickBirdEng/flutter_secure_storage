@@ -4,6 +4,7 @@
 * [Android] Method to check if an Android device supports Strongbox
 * [Android] Use old algorithms as default (migration to AES_GCM_NoPadding is broken and fails)
 * [Android] Create separate instances of FlutterSecureStorage with different configs/options
+* [Android] Use separate keys for different storage instances
 * [iOS] Add option to use secure enclave (based on [#989 PR](https://github.com/juliansteenbakker/flutter_secure_storage/pull/989))
 
 ## 10.0.0

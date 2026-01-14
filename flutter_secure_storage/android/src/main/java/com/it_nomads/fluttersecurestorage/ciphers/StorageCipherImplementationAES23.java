@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Base64;
 
+import com.it_nomads.fluttersecurestorage.FlutterSecureStorageConfig;
+
 import java.security.Key;
 import java.security.SecureRandom;
 
@@ -17,14 +19,25 @@ public class StorageCipherImplementationAES23 implements StorageCipher {
     private static final int defaultIvSize = 12;
     private static final int AUTHENTICATION_TAG_SIZE = 128;
     private static final String KEY_ALGORITHM = "AES";
-    private static final String SHARED_PREFERENCES_NAME = "FlutterSecureKeyStorage";
-    private static final String KEYSTORE_IV_NAME = "BVGhpcyBpcyB0aGUga2V5IGZvciBhIHNlY3VyZSBzdG9yYWdlIEFFUyBLZXkK";
+    private final String sharedPreferencesName;
+    private final String keystoreIvName;
     private final Cipher cipher;
     private final SecureRandom secureRandom;
     private final Key secretKey;
 
-    public StorageCipherImplementationAES23(Context context, KeyCipher ignoredKeyCipher, Cipher cipher) throws Exception{
+    public StorageCipherImplementationAES23(Context context, KeyCipher ignoredKeyCipher, Cipher cipher, FlutterSecureStorageConfig config) throws Exception{
         secureRandom = new SecureRandom();
+        
+        // Backward compatibility: use original storage names for default config
+        if ("FlutterSecureStorage".equals(config.getSharedPreferencesName())) {
+            this.sharedPreferencesName = "FlutterSecureKeyStorage";
+            this.keystoreIvName = "BVGhpcyBpcyB0aGUga2V5IGZvciBhIHNlY3VyZSBzdG9yYWdlIEFFUyBLZXkK";
+        } else {
+            String configId = config.getSharedPreferencesName() + "_" + config.getSharedPreferencesKeyPrefix();
+            this.sharedPreferencesName = "FlutterSecureKeyStorage_" + configId;
+            this.keystoreIvName = "BVGhpcyBpcyB0aGUga2V5IGZvciBhIHNlY3VyZSBzdG9yYWdlIEFFUyBLZXkK_" + configId;
+        }
+        
         this.secretKey = loadOrGenerateApplicationKey(context, cipher);
         this.cipher = getCipher();
     }
@@ -32,8 +45,8 @@ public class StorageCipherImplementationAES23 implements StorageCipher {
     private SecretKey loadOrGenerateApplicationKey(Context context, Cipher biometricCipher) throws Exception {
         final Cipher cipher = (biometricCipher != null) ? biometricCipher : getCipher();
         assert (cipher != null);
-        SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
-        String encryptedAppKeyBase64 = preferences.getString(KEYSTORE_IV_NAME, null);
+        SharedPreferences preferences = context.getSharedPreferences(sharedPreferencesName, Context.MODE_PRIVATE);
+        String encryptedAppKeyBase64 = preferences.getString(keystoreIvName, null);
 
         if (encryptedAppKeyBase64 != null) {
             // Decrypt existing key - may throw BadPaddingException, IllegalBlockSizeException if algorithm changed
@@ -48,7 +61,7 @@ public class StorageCipherImplementationAES23 implements StorageCipher {
         byte[] newEncryptedAppKey = cipher.doFinal(appKey);
 
         SharedPreferences.Editor editor = preferences.edit();
-        editor.putString(KEYSTORE_IV_NAME, Base64.encodeToString(newEncryptedAppKey, Base64.DEFAULT));
+        editor.putString(keystoreIvName, Base64.encodeToString(newEncryptedAppKey, Base64.DEFAULT));
         editor.apply();
 
         return secretKey;
@@ -56,8 +69,8 @@ public class StorageCipherImplementationAES23 implements StorageCipher {
 
     @Override
     public void deleteKey(Context context) {
-        SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
-        preferences.edit().remove(KEYSTORE_IV_NAME).apply();
+        SharedPreferences preferences = context.getSharedPreferences(sharedPreferencesName, Context.MODE_PRIVATE);
+        preferences.edit().remove(keystoreIvName).apply();
     }
 
     protected Cipher getCipher() throws Exception {
