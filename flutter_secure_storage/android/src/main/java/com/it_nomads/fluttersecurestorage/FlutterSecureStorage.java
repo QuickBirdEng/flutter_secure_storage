@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
-import android.security.keystore.StrongBoxUnavailableException;
 import android.util.Base64;
 import android.util.Log;
 
@@ -123,15 +122,9 @@ public class FlutterSecureStorage {
             }
             return encryptedPreferences;
         } catch (GeneralSecurityException | IOException e) {
-            if (e instanceof GeneralSecurityException) {
-                Throwable cause = e.getCause();
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                    if (cause instanceof StrongBoxUnavailableException && !isOnlyStrongBoxAllowed) {
-                        // Fallback to not using Strongbox
-                        return getEncryptedSharedPreferences(deleteOnFailure, options, context, sharedPreferencesName, false, isOnlyStrongBoxAllowed);
-                    }
-                }
+            if (e instanceof GeneralSecurityException && isStrongBoxBacked && !isOnlyStrongBoxAllowed) {
+                Log.w(TAG, "StrongBox-backed key generation failed, retrying without StrongBox", e);
+                return getEncryptedSharedPreferences(deleteOnFailure, options, context, sharedPreferencesName, false, isOnlyStrongBoxAllowed);
             }
 
             if (!deleteOnFailure) {
@@ -141,6 +134,14 @@ public class FlutterSecureStorage {
             Log.w(TAG, "initialization failed, resetting storage", e);
 
             context.getSharedPreferences(sharedPreferencesName, Context.MODE_PRIVATE).edit().clear().apply();
+            // Also remove corrupted master key from Android Keystore
+            try {
+                java.security.KeyStore keyStore = java.security.KeyStore.getInstance("AndroidKeyStore");
+                keyStore.load(null);
+                keyStore.deleteEntry(MasterKey.DEFAULT_MASTER_KEY_ALIAS);
+            } catch (Exception ignored) {
+                Log.w(TAG, "Failed to delete master key from KeyStore", ignored);
+            }
 
             try {
                 return initializeEncryptedSharedPreferencesManager(context, sharedPreferencesName, isStrongBoxBacked);
