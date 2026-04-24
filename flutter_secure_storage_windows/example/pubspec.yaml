@@ -10,6 +10,10 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_secure_storage_platform_interface:
+    git:
+      url: git@github.com:QuickBirdEng/flutter_secure_storage.git
+      ref: v10.0.0-fork
+      path: flutter_secure_storage_platform_interface
   flutter_secure_storage_windows:
     path: ../
   path: ^1.8.0
@@ -21,10 +25,6 @@ dev_dependencies:
     sdk: flutter
   integration_test:
     sdk: flutter
-
-dependency_overrides:
-  flutter_secure_storage_platform_interface:
-    path: ../../flutter_secure_storage_platform_interface
 
 flutter:
   uses-material-design: true
