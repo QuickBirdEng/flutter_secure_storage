@@ -1,3 +1,7 @@
+## Fork
+
+* Enabled StrongBox by default, use fallback if it's not available.
+
 ## 10.2.0
 
 ### Android
