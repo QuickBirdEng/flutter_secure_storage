@@ -1,3 +1,7 @@
+## Fork
+
+* Enabled StrongBox by default, use fallback if it's not available.
+
 ## 10.0.0
 This major release brings significant security improvements, platform updates, and modernization across all supported platforms.
 
