@@ -92,12 +92,16 @@ class KeyCipherImplementationAES23 implements KeyCipher {
         SharedPreferences preferences = context.getSharedPreferences(config.getEffectiveKeyStoragePrefsName(), Context.MODE_PRIVATE);
         String ivBase64 = preferences.getString(SHARED_PREFERENCES_KEY, null);
 
-        if (ivBase64 != null) {
-            byte[] iv =  Base64.decode(ivBase64, Base64.DEFAULT);
-
+        if (ivBase64 != null && StorageCipherImplementationAES23.hasApplicationKey(preferences)) {
+            byte[] iv = Base64.decode(ivBase64, Base64.DEFAULT);
             GCMParameterSpec spec = new GCMParameterSpec(IV_SIZE * Byte.SIZE, iv);
             cipher.init(Cipher.DECRYPT_MODE, key, spec);
         } else {
+            // IV missing, or IV exists but app key doesn't (stale from a failed/cancelled auth).
+            // Start fresh with a new ENCRYPT cipher.
+            if (ivBase64 != null) {
+                preferences.edit().remove(SHARED_PREFERENCES_KEY).apply();
+            }
             cipher.init(Cipher.ENCRYPT_MODE, key);
 
             byte[] iv = cipher.getIV();
