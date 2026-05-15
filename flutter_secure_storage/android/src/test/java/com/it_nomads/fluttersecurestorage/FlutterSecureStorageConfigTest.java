@@ -9,6 +9,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class FlutterSecureStorageConfigTest {
 
@@ -57,6 +58,11 @@ public class FlutterSecureStorageConfigTest {
     @Test
     public void defaults_enforceBiometrics_isFalse() {
         assertFalse(emptyConfig().getEnforceBiometrics());
+    }
+
+    @Test
+    public void defaults_isStrongBiometricOnly_isFalse() {
+        assertFalse(emptyConfig().isStrongBiometricOnly());
     }
 
     @Test
@@ -120,6 +126,30 @@ public class FlutterSecureStorageConfigTest {
     public void custom_enforceBiometrics_true() {
         FlutterSecureStorageConfig config = configFrom(FlutterSecureStorageConfig.PREF_OPTION_ENFORCE_BIOMETRICS, "true");
         assertTrue(config.getEnforceBiometrics());
+    }
+
+    @Test
+    public void custom_biometricType_strongBiometricOnly() {
+        FlutterSecureStorageConfig config = configFrom(FlutterSecureStorageConfig.PREF_OPTION_BIOMETRIC_TYPE,
+                "strongBiometricOnly");
+        assertTrue(config.isStrongBiometricOnly());
+    }
+
+    @Test
+    public void custom_biometricType_biometricOrDeviceCredential() {
+        FlutterSecureStorageConfig config = configFrom(FlutterSecureStorageConfig.PREF_OPTION_BIOMETRIC_TYPE,
+                "biometricOrDeviceCredential");
+        assertFalse(config.isStrongBiometricOnly());
+    }
+
+    @Test
+    public void biometricType_invalidValue_throwsIllegalArgumentException() {
+        try {
+            configFrom(FlutterSecureStorageConfig.PREF_OPTION_BIOMETRIC_TYPE, "invalidType");
+            fail("Expected IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains("invalidType"));
+        }
     }
 
     @Test

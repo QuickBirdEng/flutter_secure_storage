@@ -1022,10 +1022,10 @@ public class FlutterSecureStorage {
             BiometricManager biometricManager = context.getSystemService(BiometricManager.class);
             if (biometricManager == null) return false;
 
-            int result = biometricManager.canAuthenticate(
-                    BiometricManager.Authenticators.BIOMETRIC_STRONG |
-                            BiometricManager.Authenticators.DEVICE_CREDENTIAL
-            );
+            int authenticators = config.isStrongBiometricOnly()
+                    ? BiometricManager.Authenticators.BIOMETRIC_STRONG
+                    : BiometricManager.Authenticators.BIOMETRIC_STRONG | BiometricManager.Authenticators.DEVICE_CREDENTIAL;
+            int result = biometricManager.canAuthenticate(authenticators);
 
             return result == BiometricManager.BIOMETRIC_SUCCESS && isDeviceSecure();
         } else {
@@ -1083,10 +1083,10 @@ public class FlutterSecureStorage {
                 return;
             }
 
-            int result = biometricManager.canAuthenticate(
-                    BiometricManager.Authenticators.BIOMETRIC_STRONG |
-                            BiometricManager.Authenticators.DEVICE_CREDENTIAL
-            );
+            int authenticators = config.isStrongBiometricOnly()
+                    ? BiometricManager.Authenticators.BIOMETRIC_STRONG
+                    : BiometricManager.Authenticators.BIOMETRIC_STRONG | BiometricManager.Authenticators.DEVICE_CREDENTIAL;
+            int result = biometricManager.canAuthenticate(authenticators);
 
             // Handle specific BiometricManager status codes
             switch (result) {
@@ -1146,8 +1146,10 @@ public class FlutterSecureStorage {
                 .setSubtitle(config.getPrefOptionBiometricPromptSubtitle());
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            promptInfoBuilder
-                    .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG | BiometricManager.Authenticators.DEVICE_CREDENTIAL);
+            int authenticators = config.isStrongBiometricOnly()
+                    ? BiometricManager.Authenticators.BIOMETRIC_STRONG
+                    : BiometricManager.Authenticators.BIOMETRIC_STRONG | BiometricManager.Authenticators.DEVICE_CREDENTIAL;
+            promptInfoBuilder.setAllowedAuthenticators(authenticators);
         }
 
         BiometricPrompt promptInfo = promptInfoBuilder
