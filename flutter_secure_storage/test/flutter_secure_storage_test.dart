@@ -387,6 +387,7 @@ void main() {
         'storageNamespace': '',
         'biometricPromptTitle': 'Authenticate to access',
         'biometricPromptSubtitle': 'Use biometrics or device credentials',
+        'biometricPromptNegativeButton': 'Cancel',
       });
     });
 
@@ -426,6 +427,7 @@ void main() {
         'storageNamespace': 'customPrefs',
         'biometricPromptTitle': 'Custom Title',
         'biometricPromptSubtitle': 'Custom Subtitle',
+        'biometricPromptNegativeButton': 'Cancel',
       });
     });
 
@@ -447,6 +449,7 @@ void main() {
         'storageNamespace': '',
         'biometricPromptTitle': 'Authenticate to access',
         'biometricPromptSubtitle': 'Use biometrics or device credentials',
+        'biometricPromptNegativeButton': 'Cancel',
       });
     });
 
@@ -473,6 +476,7 @@ void main() {
         'storageNamespace': '',
         'biometricPromptTitle': 'Unlock Secure Storage',
         'biometricPromptSubtitle': 'Verify your identity',
+        'biometricPromptNegativeButton': 'Cancel',
       });
     });
 
@@ -541,6 +545,7 @@ void main() {
         'storageNamespace': 'newPrefs',
         'biometricPromptTitle': 'New Title',
         'biometricPromptSubtitle': 'New Subtitle',
+        'biometricPromptNegativeButton': 'Cancel',
       });
     });
 

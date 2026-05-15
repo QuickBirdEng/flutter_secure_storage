@@ -153,6 +153,17 @@ public class FlutterSecureStorageConfigTest {
     }
 
     @Test
+    public void defaults_biometricPromptNegativeButton() {
+        assertEquals("Cancel", emptyConfig().getBiometricPromptNegativeButton());
+    }
+
+    @Test
+    public void custom_biometricPromptNegativeButton() {
+        FlutterSecureStorageConfig config = configFrom(FlutterSecureStorageConfig.PREF_OPTION_BIOMETRIC_PROMPT_NEGATIVE_BUTTON, "Dismiss");
+        assertEquals("Dismiss", config.getBiometricPromptNegativeButton());
+    }
+
+    @Test
     public void custom_biometricPromptTitle() {
         FlutterSecureStorageConfig config = configFrom(FlutterSecureStorageConfig.PREF_OPTION_BIOMETRIC_PROMPT_TITLE, "Please authenticate");
         assertEquals("Please authenticate", config.getBiometricPromptTitle());

@@ -96,6 +96,7 @@ class AndroidOptions extends Options {
     this.storageNamespace,
     this.biometricPromptTitle,
     this.biometricPromptSubtitle,
+    this.biometricPromptNegativeButton,
   })  : _encryptedSharedPreferences = encryptedSharedPreferences,
         _resetOnError = resetOnError,
         _migrateOnAlgorithmChange = migrateOnAlgorithmChange,
@@ -134,6 +135,7 @@ class AndroidOptions extends Options {
     this.storageNamespace,
     this.biometricPromptTitle,
     this.biometricPromptSubtitle,
+    this.biometricPromptNegativeButton,
   })  : _encryptedSharedPreferences = encryptedSharedPreferences,
         _resetOnError = resetOnError,
         _migrateOnAlgorithmChange = migrateOnAlgorithmChange,
@@ -241,6 +243,13 @@ class AndroidOptions extends Options {
   /// The subtitle shown in the biometric authentication prompt.
   final String? biometricPromptSubtitle;
 
+  /// The label for the negative (cancel) button shown in the biometric prompt.
+  ///
+  /// Required when [biometricType] is [AndroidBiometricType.strongBiometricOnly]
+  /// or on Android 10 (API level 29) and lower, because device-credential
+  /// fallback is unavailable and the system needs an explicit dismiss action.
+  final String? biometricPromptNegativeButton;
+
   /// Default Android options with standard secure configuration.
   static const AndroidOptions defaultOptions = AndroidOptions();
 
@@ -262,6 +271,7 @@ class AndroidOptions extends Options {
             biometricPromptTitle ?? 'Authenticate to access',
         'biometricPromptSubtitle':
             biometricPromptSubtitle ?? 'Use biometrics or device credentials',
+        'biometricPromptNegativeButton': biometricPromptNegativeButton ?? 'Cancel',
       };
 
   /// Creates a copy of this AndroidOptions with the given fields replaced.
@@ -283,6 +293,7 @@ class AndroidOptions extends Options {
     String? storageNamespace,
     String? biometricPromptTitle,
     String? biometricPromptSubtitle,
+    String? biometricPromptNegativeButton,
   }) =>
       AndroidOptions(
         // ignore: deprecated_member_use_from_same_package — will be removed in v11
@@ -306,5 +317,7 @@ class AndroidOptions extends Options {
         biometricPromptTitle: biometricPromptTitle ?? this.biometricPromptTitle,
         biometricPromptSubtitle:
             biometricPromptSubtitle ?? this.biometricPromptSubtitle,
+        biometricPromptNegativeButton:
+            biometricPromptNegativeButton ?? this.biometricPromptNegativeButton,
       );
 }

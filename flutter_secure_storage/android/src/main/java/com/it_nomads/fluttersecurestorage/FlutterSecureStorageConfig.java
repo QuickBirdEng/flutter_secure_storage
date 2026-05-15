@@ -22,6 +22,7 @@ public class FlutterSecureStorageConfig {
     private static final String DEFAULT_BIOMETRIC_TYPE = BIOMETRIC_TYPE_DEVICE_CREDENTIAL;
     private static final String DEFAULT_BIOMETRIC_PROMPT_TITLE = "Authenticate to access";
     private static final String DEFAULT_BIOMETRIC_PROMPT_SUBTITLE = "Use biometrics or device credentials";
+    private static final String DEFAULT_BIOMETRIC_PROMPT_NEGATIVE_BUTTON = "Cancel";
     private static final String DEFAULT_STORAGE_CIPHER_ALGORITHM = "AES_GCM_NoPadding";
     private static final String DEFAULT_KEY_CIPHER_ALGORITHM = "RSA_ECB_OAEPwithSHA_256andMGF1Padding";
 
@@ -35,6 +36,7 @@ public class FlutterSecureStorageConfig {
     public static final String PREF_OPTION_BIOMETRIC_TYPE = "biometricType";
     public static final String PREF_OPTION_BIOMETRIC_PROMPT_TITLE = "biometricPromptTitle";
     public static final String PREF_OPTION_BIOMETRIC_PROMPT_SUBTITLE = "biometricPromptSubtitle";
+    public static final String PREF_OPTION_BIOMETRIC_PROMPT_NEGATIVE_BUTTON = "biometricPromptNegativeButton";
     // Legacy keys kept for backwards compatibility.
     public static final String LEGACY_PREF_OPTION_BIOMETRIC_PROMPT_TITLE = "prefOptionBiometricPromptTitle";
     public static final String LEGACY_PREF_OPTION_BIOMETRIC_PROMPT_SUBTITLE = "prefOptionBiometricPromptSubtitle";
@@ -56,6 +58,7 @@ public class FlutterSecureStorageConfig {
     private final boolean strongBiometricOnly;
     private final String biometricPromptTitle;
     private final String biometricPromptSubtitle;
+    private final String biometricPromptNegativeButton;
     private final String keyCipherAlgorithm;
     private final String storageCipherAlgorithm;
 
@@ -85,6 +88,7 @@ public class FlutterSecureStorageConfig {
                 LEGACY_PREF_OPTION_BIOMETRIC_PROMPT_SUBTITLE,
                 DEFAULT_BIOMETRIC_PROMPT_SUBTITLE
         );
+        this.biometricPromptNegativeButton = getStringOption(options, PREF_OPTION_BIOMETRIC_PROMPT_NEGATIVE_BUTTON, DEFAULT_BIOMETRIC_PROMPT_NEGATIVE_BUTTON);
         this.storageCipherAlgorithm = getStringOption(options, PREF_OPTION_STORAGE_CIPHER_ALGORITHM, DEFAULT_STORAGE_CIPHER_ALGORITHM);
         this.keyCipherAlgorithm = getStringOption(options, PREF_OPTION_KEY_CIPHER_ALGORITHM, DEFAULT_KEY_CIPHER_ALGORITHM);
 
@@ -152,6 +156,7 @@ public class FlutterSecureStorageConfig {
 
     public String getBiometricPromptTitle() { return biometricPromptTitle; }
     public String getPrefOptionBiometricPromptSubtitle() { return biometricPromptSubtitle; }
+    public String getBiometricPromptNegativeButton() { return biometricPromptNegativeButton; }
     public String getPrefOptionStorageCipherAlgorithm() { return storageCipherAlgorithm; }
     public String getPrefOptionKeyCipherAlgorithm() { return keyCipherAlgorithm; }
 
