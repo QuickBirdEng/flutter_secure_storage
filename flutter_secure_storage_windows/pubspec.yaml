@@ -11,7 +11,11 @@ dependencies:
   ffi: ^2.2.0
   flutter:
     sdk: flutter
-  flutter_secure_storage_platform_interface: ^2.0.0
+  flutter_secure_storage_platform_interface:
+    git:
+      url: git@github.com:QuickBirdEng/flutter_secure_storage.git
+      ref: v10.2.0-fork
+      path: flutter_secure_storage_platform_interface
   path: ^1.9.1
   path_provider: ^2.1.5
   path_provider_platform_interface: ^2.1.2
