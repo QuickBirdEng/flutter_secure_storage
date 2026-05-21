@@ -705,12 +705,15 @@ void main() {
       }
     });
 
-    test('AndroidOptions.biometric with strongBiometricOnly sets biometricType', () {
-      const options = AndroidOptions.biometric(
-        biometricType: AndroidBiometricType.strongBiometricOnly,
-      );
-      expect(options.toMap()['biometricType'], 'strongBiometricOnly');
-    });
+    test(
+      'AndroidOptions.biometric with strongBiometricOnly sets biometricType',
+      () {
+        const options = AndroidOptions.biometric(
+          biometricType: AndroidBiometricType.strongBiometricOnly,
+        );
+        expect(options.toMap()['biometricType'], 'strongBiometricOnly');
+      },
+    );
 
     test('copyWith can change biometricType', () {
       const original = AndroidOptions.biometric();

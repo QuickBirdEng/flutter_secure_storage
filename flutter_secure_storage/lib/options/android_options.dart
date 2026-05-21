@@ -245,9 +245,9 @@ class AndroidOptions extends Options {
 
   /// The label for the negative (cancel) button shown in the biometric prompt.
   ///
-  /// Required when [biometricType] is [AndroidBiometricType.strongBiometricOnly]
-  /// or on Android 10 (API level 29) and lower, because device-credential
-  /// fallback is unavailable and the system needs an explicit dismiss action.
+  /// Required when [AndroidBiometricType.strongBiometricOnly] is used, or on
+  /// Android 10 (API level 29) and lower, because device-credential fallback
+  /// is unavailable and the system needs an explicit dismiss action.
   final String? biometricPromptNegativeButton;
 
   /// Default Android options with standard secure configuration.
@@ -271,7 +271,8 @@ class AndroidOptions extends Options {
             biometricPromptTitle ?? 'Authenticate to access',
         'biometricPromptSubtitle':
             biometricPromptSubtitle ?? 'Use biometrics or device credentials',
-        'biometricPromptNegativeButton': biometricPromptNegativeButton ?? 'Cancel',
+        'biometricPromptNegativeButton':
+            biometricPromptNegativeButton ?? 'Cancel',
       };
 
   /// Creates a copy of this AndroidOptions with the given fields replaced.
