@@ -230,7 +230,7 @@ final storage = FlutterSecureStorage(
 | `AndroidBiometricType.biometricOrDeviceCredential` | Class 3 biometrics **or** PIN / pattern / password (default) |
 | `AndroidBiometricType.strongBiometricOnly`  | Class 3 (strong) biometrics only — credentials rejected |
 
-> **Note:** On Android 10 (API level 29) and lower, `setAllowedAuthenticators` is not available and the system may still allow device credentials regardless of this setting.
+> **Note:** On Android 10 (API level 29) and lower, `setAllowedAuthenticators` is unavailable. Device credentials (PIN/pattern/password) are not accepted on these versions — only Class 3 (strong) biometrics work, regardless of the `biometricType` setting.
 
 ##### Requirements
 
