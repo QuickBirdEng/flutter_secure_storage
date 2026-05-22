@@ -142,11 +142,12 @@ Add the following to your `android/app/src/main/AndroidManifest.xml`:
 
 Version 10 introduces new cipher options and biometric support. Choose the configuration that fits your security requirements:
 
-| Constructor                                          | Key Cipher                            | Storage Cipher    | Biometric Support | Description                                                                                                                                          |
-|------------------------------------------------------|---------------------------------------|-------------------|-------------------|------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `AndroidOptions()`                                   | RSA/ECB/OAEPWithSHA-256AndMGF1Padding | AES/GCM/NoPadding | No                | **Default.** Standard secure storage with RSA OAEP key wrapping. Strong authenticated encryption without biometrics. Recommended for most use cases. |
-| `AndroidOptions.biometric(enforceBiometrics: false)` | AES/GCM/NoPadding                     | AES/GCM/NoPadding | Optional          | KeyStore-based with optional biometric authentication. Gracefully degrades if biometrics unavailable.                                                |
-| `AndroidOptions.biometric(enforceBiometrics: true)`  | AES/GCM/NoPadding                     | AES/GCM/NoPadding | Required          | KeyStore-based requiring biometric/PIN authentication. Throws error if device security not available. Requires API 28+ for biometric enforcement.    |
+| Constructor                                                                                              | Key Cipher                            | Storage Cipher    | Biometric Support | Description                                                                                                                                          |
+|----------------------------------------------------------------------------------------------------------|---------------------------------------|-------------------|-------------------|------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `AndroidOptions()`                                                                                       | RSA/ECB/OAEPWithSHA-256AndMGF1Padding | AES/GCM/NoPadding | No                | **Default.** Standard secure storage with RSA OAEP key wrapping. Strong authenticated encryption without biometrics. Recommended for most use cases. |
+| `AndroidOptions.biometric(enforceBiometrics: false)`                                                     | AES/GCM/NoPadding                     | AES/GCM/NoPadding | Optional          | KeyStore-based with optional biometric authentication. Gracefully degrades if biometrics unavailable.                                                |
+| `AndroidOptions.biometric(enforceBiometrics: true)`                                                      | AES/GCM/NoPadding                     | AES/GCM/NoPadding | Required          | KeyStore-based requiring biometric/PIN authentication. Throws error if device security not available. Requires API 28+ for biometric enforcement.    |
+| `AndroidOptions.biometric(enforceBiometrics: true, biometricType: AndroidBiometricType.strongBiometricOnly)` | AES/GCM/NoPadding                 | AES/GCM/NoPadding | Required (strong) | Same as above but restricts authentication to Class 3 (strong) biometrics only. Device credentials (PIN/pattern/password) are rejected.              |
 
 #### Custom Cipher Combinations (Advanced)
 
@@ -209,14 +210,33 @@ final storage = FlutterSecureStorage(
     biometricPromptTitle: 'Biometric authentication required',
   ),
 );
+
+// Strong biometric only — device credentials (PIN/pattern/password) rejected
+final storage = FlutterSecureStorage(
+  aOptions: AndroidOptions.biometric(
+    enforceBiometrics: true,
+    biometricType: AndroidBiometricType.strongBiometricOnly,
+    biometricPromptTitle: 'Fingerprint required',
+  ),
+);
 ```
 
 **Note:** When `enforceBiometrics: true`, the app will throw an exception if the device has no PIN, pattern, password, or biometric enrolled.
+
+**`biometricType`** controls which authentication methods satisfy the biometric prompt (only applies when using `AES_GCM_NoPadding` key cipher):
+
+| Value                                       | Accepted methods                                        |
+|---------------------------------------------|---------------------------------------------------------|
+| `AndroidBiometricType.biometricOrDeviceCredential` | Class 3 biometrics **or** PIN / pattern / password (default) |
+| `AndroidBiometricType.strongBiometricOnly`  | Class 3 (strong) biometrics only — credentials rejected |
+
+> **Note:** On Android 10 (API level 29) and lower, `setAllowedAuthenticators` is unavailable. Device credentials (PIN/pattern/password) are not accepted on these versions — only Class 3 (strong) biometrics work, regardless of the `biometricType` setting.
 
 ##### Requirements
 
 - **API Level**: Android 6.0 (API 23) minimum for basic encryption
 - **API Level**: Android 9.0 (API 28) minimum for enforced biometric authentication
+- **API Level**: Android 11.0 (API 30) minimum for `AndroidBiometricType.strongBiometricOnly` to be fully enforced
 - **Device Security**: Device must have a PIN, pattern, password, or biometric enrolled (when using `enforceBiometrics: true`)
 - **Permissions**: `USE_BIOMETRIC` permission in AndroidManifest.xml
 

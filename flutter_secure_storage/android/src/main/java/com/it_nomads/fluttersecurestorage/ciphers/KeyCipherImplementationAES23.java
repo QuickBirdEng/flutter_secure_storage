@@ -160,8 +160,10 @@ class KeyCipherImplementationAES23 implements KeyCipher {
             builder.setUserAuthenticationRequired(true);
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                builder.setUserAuthenticationParameters(0,
-                        AUTH_DEVICE_CREDENTIAL | AUTH_BIOMETRIC_STRONG);
+                int authTypes = config.isStrongBiometricOnly()
+                        ? AUTH_BIOMETRIC_STRONG
+                        : AUTH_DEVICE_CREDENTIAL | AUTH_BIOMETRIC_STRONG;
+                builder.setUserAuthenticationParameters(0, authTypes);
             } else {
                 configureLegacyAuth(builder);
             }
@@ -205,8 +207,10 @@ class KeyCipherImplementationAES23 implements KeyCipher {
                     builder.setUserAuthenticationRequired(true);
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                        builder.setUserAuthenticationParameters(0,
-                                AUTH_DEVICE_CREDENTIAL | AUTH_BIOMETRIC_STRONG);
+                        int authTypes = config.isStrongBiometricOnly()
+                                ? AUTH_BIOMETRIC_STRONG
+                                : AUTH_DEVICE_CREDENTIAL | AUTH_BIOMETRIC_STRONG;
+                        builder.setUserAuthenticationParameters(0, authTypes);
                     } else {
                         configureLegacyAuth(builder);
                     }

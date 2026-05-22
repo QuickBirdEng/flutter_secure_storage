@@ -381,11 +381,13 @@ void main() {
         'enforceBiometrics': 'false',
         'keyCipherAlgorithm': 'RSA_ECB_OAEPwithSHA_256andMGF1Padding',
         'storageCipherAlgorithm': 'AES_GCM_NoPadding',
+        'biometricType': 'biometricOrDeviceCredential',
         'sharedPreferencesName': '',
         'preferencesKeyPrefix': '',
         'storageNamespace': '',
         'biometricPromptTitle': 'Authenticate to access',
         'biometricPromptSubtitle': 'Use biometrics or device credentials',
+        'biometricPromptNegativeButton': 'Cancel',
       });
     });
 
@@ -419,11 +421,13 @@ void main() {
         'enforceBiometrics': 'true',
         'keyCipherAlgorithm': 'RSA_ECB_PKCS1Padding',
         'storageCipherAlgorithm': 'AES_CBC_PKCS7Padding',
+        'biometricType': 'biometricOrDeviceCredential',
         'sharedPreferencesName': '',
         'preferencesKeyPrefix': 'customPrefix',
         'storageNamespace': 'customPrefs',
         'biometricPromptTitle': 'Custom Title',
         'biometricPromptSubtitle': 'Custom Subtitle',
+        'biometricPromptNegativeButton': 'Cancel',
       });
     });
 
@@ -439,11 +443,13 @@ void main() {
         'enforceBiometrics': 'false',
         'keyCipherAlgorithm': 'AES_GCM_NoPadding',
         'storageCipherAlgorithm': 'AES_GCM_NoPadding',
+        'biometricType': 'biometricOrDeviceCredential',
         'sharedPreferencesName': '',
         'preferencesKeyPrefix': '',
         'storageNamespace': '',
         'biometricPromptTitle': 'Authenticate to access',
         'biometricPromptSubtitle': 'Use biometrics or device credentials',
+        'biometricPromptNegativeButton': 'Cancel',
       });
     });
 
@@ -464,11 +470,13 @@ void main() {
         'enforceBiometrics': 'true',
         'keyCipherAlgorithm': 'AES_GCM_NoPadding',
         'storageCipherAlgorithm': 'AES_GCM_NoPadding',
+        'biometricType': 'biometricOrDeviceCredential',
         'sharedPreferencesName': '',
         'preferencesKeyPrefix': '',
         'storageNamespace': '',
         'biometricPromptTitle': 'Unlock Secure Storage',
         'biometricPromptSubtitle': 'Verify your identity',
+        'biometricPromptNegativeButton': 'Cancel',
       });
     });
 
@@ -531,11 +539,13 @@ void main() {
         'enforceBiometrics': 'true',
         'keyCipherAlgorithm': 'RSA_ECB_PKCS1Padding',
         'storageCipherAlgorithm': 'AES_CBC_PKCS7Padding',
+        'biometricType': 'biometricOrDeviceCredential',
         'sharedPreferencesName': '',
         'preferencesKeyPrefix': 'newPrefix',
         'storageNamespace': 'newPrefs',
         'biometricPromptTitle': 'New Title',
         'biometricPromptSubtitle': 'New Subtitle',
+        'biometricPromptNegativeButton': 'Cancel',
       });
     });
 
@@ -686,6 +696,32 @@ void main() {
         final options = AndroidOptions(storageCipherAlgorithm: algorithm);
         expect(options.toMap()['storageCipherAlgorithm'], algorithm.name);
       }
+    });
+
+    test('All AndroidBiometricType enum values are correctly mapped', () {
+      for (final type in AndroidBiometricType.values) {
+        final options = AndroidOptions(biometricType: type);
+        expect(options.toMap()['biometricType'], type.name);
+      }
+    });
+
+    test(
+      'AndroidOptions.biometric with strongBiometricOnly sets biometricType',
+      () {
+        const options = AndroidOptions.biometric(
+          biometricType: AndroidBiometricType.strongBiometricOnly,
+        );
+        expect(options.toMap()['biometricType'], 'strongBiometricOnly');
+      },
+    );
+
+    test('copyWith can change biometricType', () {
+      const original = AndroidOptions.biometric();
+      final copied = original.copyWith(
+        biometricType: AndroidBiometricType.strongBiometricOnly,
+      );
+      expect(copied.toMap()['biometricType'], 'strongBiometricOnly');
+      expect(original.toMap()['biometricType'], 'biometricOrDeviceCredential');
     });
   });
 

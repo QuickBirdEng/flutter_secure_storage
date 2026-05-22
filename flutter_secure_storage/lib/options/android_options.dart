@@ -40,6 +40,19 @@ enum StorageCipherAlgorithm {
   AES_GCM_NoPadding,
 }
 
+/// Controls which authentication methods are accepted when biometric
+/// authentication is used.
+enum AndroidBiometricType {
+  /// Only Class 3 (strong) biometrics are accepted — e.g. fingerprint or
+  /// hardware-backed face recognition. Device credentials (PIN, pattern,
+  /// password) are explicitly rejected.
+  strongBiometricOnly,
+
+  /// Strong biometrics **or** device credentials (PIN, pattern, password) are
+  /// accepted. This is the default.
+  biometricOrDeviceCredential,
+}
+
 /// Specific options for Android platform.
 class AndroidOptions extends Options {
   /// Standard secure storage using AES-GCM with RSA OAEP key wrapping.
@@ -72,6 +85,8 @@ class AndroidOptions extends Options {
         KeyCipherAlgorithm.RSA_ECB_OAEPwithSHA_256andMGF1Padding,
     StorageCipherAlgorithm storageCipherAlgorithm =
         StorageCipherAlgorithm.AES_GCM_NoPadding,
+    AndroidBiometricType biometricType =
+        AndroidBiometricType.biometricOrDeviceCredential,
     @Deprecated(
         'Use storageNamespace instead. sharedPreferencesName only isolates '
         'data storage; storageNamespace provides full isolation including '
@@ -81,13 +96,15 @@ class AndroidOptions extends Options {
     this.storageNamespace,
     this.biometricPromptTitle,
     this.biometricPromptSubtitle,
+    this.biometricPromptNegativeButton,
   })  : _encryptedSharedPreferences = encryptedSharedPreferences,
         _resetOnError = resetOnError,
         _migrateOnAlgorithmChange = migrateOnAlgorithmChange,
         _migrateWithBackup = migrateWithBackup,
         _enforceBiometrics = enforceBiometrics,
         _keyCipherAlgorithm = keyCipherAlgorithm,
-        _storageCipherAlgorithm = storageCipherAlgorithm;
+        _storageCipherAlgorithm = storageCipherAlgorithm,
+        _biometricType = biometricType;
 
   /// Maximum security storage with optional biometric authentication.
   /// - Optionally requires biometric authentication
@@ -107,6 +124,8 @@ class AndroidOptions extends Options {
     bool migrateOnAlgorithmChange = true,
     bool migrateWithBackup = false,
     bool enforceBiometrics = false,
+    AndroidBiometricType biometricType =
+        AndroidBiometricType.biometricOrDeviceCredential,
     @Deprecated(
         'Use storageNamespace instead. sharedPreferencesName only isolates '
         'data storage; storageNamespace provides full isolation including '
@@ -116,13 +135,15 @@ class AndroidOptions extends Options {
     this.storageNamespace,
     this.biometricPromptTitle,
     this.biometricPromptSubtitle,
+    this.biometricPromptNegativeButton,
   })  : _encryptedSharedPreferences = encryptedSharedPreferences,
         _resetOnError = resetOnError,
         _migrateOnAlgorithmChange = migrateOnAlgorithmChange,
         _migrateWithBackup = migrateWithBackup,
         _enforceBiometrics = enforceBiometrics,
         _keyCipherAlgorithm = KeyCipherAlgorithm.AES_GCM_NoPadding,
-        _storageCipherAlgorithm = StorageCipherAlgorithm.AES_GCM_NoPadding;
+        _storageCipherAlgorithm = StorageCipherAlgorithm.AES_GCM_NoPadding,
+        _biometricType = biometricType;
 
   /// EncryptedSharedPrefences are only available on API 23 and greater
   final bool _encryptedSharedPreferences;
@@ -176,6 +197,10 @@ class AndroidOptions extends Options {
   /// Legacy AES/CBC/PKCS7Padding is available for backwards compatibility.
   final StorageCipherAlgorithm _storageCipherAlgorithm;
 
+  /// Controls which authentication methods are accepted during biometric
+  /// prompts.
+  final AndroidBiometricType _biometricType;
+
   /// The name of the sharedPreference database to use.
   /// You can select your own name if you want. A default name will
   /// be used if nothing is provided here.
@@ -218,6 +243,13 @@ class AndroidOptions extends Options {
   /// The subtitle shown in the biometric authentication prompt.
   final String? biometricPromptSubtitle;
 
+  /// The label for the negative (cancel) button shown in the biometric prompt.
+  ///
+  /// Required when [AndroidBiometricType.strongBiometricOnly] is used, or on
+  /// Android 10 (API level 29) and lower, because device-credential fallback
+  /// is unavailable and the system needs an explicit dismiss action.
+  final String? biometricPromptNegativeButton;
+
   /// Default Android options with standard secure configuration.
   static const AndroidOptions defaultOptions = AndroidOptions();
 
@@ -230,6 +262,7 @@ class AndroidOptions extends Options {
         'enforceBiometrics': '$_enforceBiometrics',
         'keyCipherAlgorithm': _keyCipherAlgorithm.name,
         'storageCipherAlgorithm': _storageCipherAlgorithm.name,
+        'biometricType': _biometricType.name,
         // ignore: deprecated_member_use_from_same_package — legacy support
         'sharedPreferencesName': sharedPreferencesName ?? '',
         'preferencesKeyPrefix': preferencesKeyPrefix ?? '',
@@ -238,6 +271,8 @@ class AndroidOptions extends Options {
             biometricPromptTitle ?? 'Authenticate to access',
         'biometricPromptSubtitle':
             biometricPromptSubtitle ?? 'Use biometrics or device credentials',
+        'biometricPromptNegativeButton':
+            biometricPromptNegativeButton ?? 'Cancel',
       };
 
   /// Creates a copy of this AndroidOptions with the given fields replaced.
@@ -249,6 +284,7 @@ class AndroidOptions extends Options {
     bool? enforceBiometrics,
     KeyCipherAlgorithm? keyCipherAlgorithm,
     StorageCipherAlgorithm? storageCipherAlgorithm,
+    AndroidBiometricType? biometricType,
     String? preferencesKeyPrefix,
     @Deprecated(
         'Use storageNamespace instead. sharedPreferencesName only isolates '
@@ -258,6 +294,7 @@ class AndroidOptions extends Options {
     String? storageNamespace,
     String? biometricPromptTitle,
     String? biometricPromptSubtitle,
+    String? biometricPromptNegativeButton,
   }) =>
       AndroidOptions(
         // ignore: deprecated_member_use_from_same_package — will be removed in v11
@@ -271,6 +308,7 @@ class AndroidOptions extends Options {
         keyCipherAlgorithm: keyCipherAlgorithm ?? _keyCipherAlgorithm,
         storageCipherAlgorithm:
             storageCipherAlgorithm ?? _storageCipherAlgorithm,
+        biometricType: biometricType ?? _biometricType,
         // ignore: deprecated_member_use_from_same_package — legacy support
         sharedPreferencesName:
             // ignore: deprecated_member_use_from_same_package — legacy support
@@ -280,5 +318,7 @@ class AndroidOptions extends Options {
         biometricPromptTitle: biometricPromptTitle ?? this.biometricPromptTitle,
         biometricPromptSubtitle:
             biometricPromptSubtitle ?? this.biometricPromptSubtitle,
+        biometricPromptNegativeButton:
+            biometricPromptNegativeButton ?? this.biometricPromptNegativeButton,
       );
 }
