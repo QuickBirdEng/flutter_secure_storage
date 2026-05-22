@@ -9,7 +9,7 @@ This is the platform-specific implementation of `flutter_secure_storage` for Lin
 
 ## Installation
 
-Install [libsecret](https://github.com/GNOME/libsecret) — both the development package (to build) and the runtime package (to run).
+Install [libsecret](https://github.com/GNOME/libsecret) — both the development package (to build) and the runtime package (to run). The runtime package (`libsecret-1-0`) is typically pre-installed on most Linux desktops.
 
 <details>
 <summary>apt / dnf / pacman</summary>
