@@ -142,11 +142,12 @@ Add the following to your `android/app/src/main/AndroidManifest.xml`:
 
 Version 10 introduces new cipher options and biometric support. Choose the configuration that fits your security requirements:
 
-| Constructor                                          | Key Cipher                            | Storage Cipher    | Biometric Support | Description                                                                                                                                          |
-|------------------------------------------------------|---------------------------------------|-------------------|-------------------|------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `AndroidOptions()`                                   | RSA/ECB/OAEPWithSHA-256AndMGF1Padding | AES/GCM/NoPadding | No                | **Default.** Standard secure storage with RSA OAEP key wrapping. Strong authenticated encryption without biometrics. Recommended for most use cases. |
-| `AndroidOptions.biometric(enforceBiometrics: false)` | AES/GCM/NoPadding                     | AES/GCM/NoPadding | Optional          | KeyStore-based with optional biometric authentication. Gracefully degrades if biometrics unavailable.                                                |
-| `AndroidOptions.biometric(enforceBiometrics: true)`  | AES/GCM/NoPadding                     | AES/GCM/NoPadding | Required          | KeyStore-based requiring biometric/PIN authentication. Throws error if device security not available. Requires API 28+ for biometric enforcement.    |
+| Constructor                                                                                              | Key Cipher                            | Storage Cipher    | Biometric Support | Description                                                                                                                                          |
+|----------------------------------------------------------------------------------------------------------|---------------------------------------|-------------------|-------------------|------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `AndroidOptions()`                                                                                       | RSA/ECB/OAEPWithSHA-256AndMGF1Padding | AES/GCM/NoPadding | No                | **Default.** Standard secure storage with RSA OAEP key wrapping. Strong authenticated encryption without biometrics. Recommended for most use cases. |
+| `AndroidOptions.biometric(enforceBiometrics: false)`                                                     | AES/GCM/NoPadding                     | AES/GCM/NoPadding | Optional          | KeyStore-based with optional biometric authentication. Gracefully degrades if biometrics unavailable.                                                |
+| `AndroidOptions.biometric(enforceBiometrics: true)`                                                      | AES/GCM/NoPadding                     | AES/GCM/NoPadding | Required          | KeyStore-based requiring biometric/PIN authentication. Throws error if device security not available. Requires API 28+ for biometric enforcement.    |
+| `AndroidOptions.biometric(enforceBiometrics: true, biometricType: AndroidBiometricType.strongBiometricOnly)` | AES/GCM/NoPadding                 | AES/GCM/NoPadding | Required (strong) | Same as above but restricts authentication to Class 3 (strong) biometrics only. Device credentials (PIN/pattern/password) are rejected.              |
 
 #### Custom Cipher Combinations (Advanced)
 
@@ -266,14 +267,33 @@ final storage = FlutterSecureStorage(
     biometricPromptTitle: 'Biometric authentication required',
   ),
 );
+
+// Strong biometric only — device credentials (PIN/pattern/password) rejected
+final storage = FlutterSecureStorage(
+  aOptions: AndroidOptions.biometric(
+    enforceBiometrics: true,
+    biometricType: AndroidBiometricType.strongBiometricOnly,
+    biometricPromptTitle: 'Fingerprint required',
+  ),
+);
 ```
 
 **Note:** When `enforceBiometrics: true`, the app will throw an exception if the device has no PIN, pattern, password, or biometric enrolled.
+
+**`biometricType`** controls which authentication methods satisfy the biometric prompt (only applies when using `AES_GCM_NoPadding` key cipher):
+
+| Value                                       | Accepted methods                                        |
+|---------------------------------------------|---------------------------------------------------------|
+| `AndroidBiometricType.biometricOrDeviceCredential` | Class 3 biometrics **or** PIN / pattern / password (default) |
+| `AndroidBiometricType.strongBiometricOnly`  | Class 3 (strong) biometrics only — credentials rejected |
+
+> **Note:** On Android 10 (API level 29) and lower, `setAllowedAuthenticators` is unavailable. Device credentials (PIN/pattern/password) are not accepted on these versions — only Class 3 (strong) biometrics work, regardless of the `biometricType` setting.
 
 ##### Requirements
 
 - **API Level**: Android 6.0 (API 23) minimum for basic encryption
 - **API Level**: Android 9.0 (API 28) minimum for enforced biometric authentication
+- **API Level**: Android 11.0 (API 30) minimum for `AndroidBiometricType.strongBiometricOnly` to be fully enforced
 - **Device Security**: Device must have a PIN, pattern, password, or biometric enrolled (when using `enforceBiometrics: true`)
 - **Permissions**: `USE_BIOMETRIC` permission in AndroidManifest.xml
 
@@ -341,7 +361,57 @@ You need the C++ ATL libraries installed along with the rest of Visual Studio Bu
 
 ### Linux
 
-You need `libsecret-1-dev` on your machine to build the project, and `libsecret-1-0` to run the application (add it as a dependency after packaging your app). If you using snapcraft to build the project use the following
+You need to install [Libsecret](https://github.com/GNOME/libsecret) pacakges:
+
+1. **development package**: on your machine to build the project
+2. **runtime pacakge**: to run the application (add it as a dependency after packaging your app).
+
+<details>
+	<summary>Apt / Dnf / Pacman</summary>
+
+For Ubuntu / Debian-based distros (e.g., Linux Mint, PopOS):
+
+```shell
+sudo apt install libsecret-1-0 libsecret-1-dev
+```
+
+For Fedora / RHEL / CentOS distros:
+
+```shell
+sudo dnf install libsecret libsecret-devel
+```
+
+For Arch based distros (a single package containing both development and runtime modules):
+
+```shell
+sudo pacman -S libsecret
+```
+
+	
+</details>
+
+<details>
+	<summary>Flatpak / Flathub</summary>
+
+[Libsecret supports](https://github.com/GNOME/libsecret#libsecret) both `org.freedesktop.Secret` and `org.freedesktop.portal.Secret` 
+and is compatible with Flatpak or sandboxed apps.
+
+Freedesktop runtime version 25.08 (also GNOME runtime 49, KDE runtime 6.10 and 5.15-25.08) provides libsecret; therefore, it no longer needs to be compiled ([flathub/shared-modules/#424](https://github.com/flathub/shared-modules/issues/424)) in your app manifest:
+
+```yaml
+runtime: org.freedesktop.Platform
+runtime-version: '25.08' # Should be at least 25.08 (or newer)
+```
+
+> However, if you are still using an older runtime, you may use [Flathub Shared Modules](https://docs.flathub.org/docs/for-app-authors/shared-modules)
+and add `shared-modules/libsecret/libsecret.json` (**no longer recommend** and will be removed).
+	
+</details>
+
+<details>
+	<summary>Snapcraft</summary>
+
+If you using snapcraft to build the project, use the following:
 
 ```yaml
 parts:
@@ -355,7 +425,13 @@ parts:
       - libsecret-1-0
 ```
 
-Apart from `libsecret` you also need a keyring service, for that you need either [`gnome-keyring`](https://wiki.gnome.org/Projects/GnomeKeyring) (for Gnome users) or [`kwalletmanager`](https://wiki.archlinux.org/title/KDE_Wallet) (for KDE users) or other light provider like [`secret-service`](https://github.com/yousefvand/secret-service).
+</details>
+
+Apart from `libsecret`, you also need a keyring service. This is typically already installed by the desktop environment:
+
+- [`gnome-keyring`](https://wiki.gnome.org/Projects/GnomeKeyring) (for Gnome users)
+- [`kwalletmanager`](https://wiki.archlinux.org/title/KDE_Wallet) (for KDE users)
+- Or a light provider such as [`secret-service`](https://github.com/yousefvand/secret-service)
 
 ## Integration Tests
 

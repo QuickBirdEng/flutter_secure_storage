@@ -1,3 +1,11 @@
+## 10.3.0
+
+### Android
+- Added `AndroidBiometricType` enum and `biometricType` option to `AndroidOptions` to control which authentication methods are accepted during biometric prompts (requires `KeyCipherAlgorithm.AES_GCM_NoPadding`).
+  - `AndroidBiometricType.biometricOrDeviceCredential` (default) — accepts Class 3 biometrics or device credentials (PIN/pattern/password), preserving previous behaviour.
+  - `AndroidBiometricType.strongBiometricOnly` — restricts authentication to Class 3 (strong) biometrics only; device credentials are explicitly rejected.
+- Fully enforced on Android 11+ (API 30+) via `setAllowedAuthenticators` on `BiometricPrompt` and `setUserAuthenticationParameters` on the KeyStore key. On earlier API levels the system may still permit device credentials.
+
 ## 10.2.0
 
 ### Android
