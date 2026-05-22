@@ -361,10 +361,10 @@ You need the C++ ATL libraries installed along with the rest of Visual Studio Bu
 
 ### Linux
 
-You need to install [Libsecret](https://github.com/GNOME/libsecret) pacakges:
+You need to install [Libsecret](https://github.com/GNOME/libsecret) packages:
 
 1. **development package**: on your machine to build the project
-2. **runtime pacakge**: to run the application (add it as a dependency after packaging your app).
+2. **runtime package**: to run the application (add it as a dependency after packaging your app).
 
 <details>
 	<summary>Apt / Dnf / Pacman</summary>
@@ -415,8 +415,7 @@ If you using snapcraft to build the project, use the following:
 
 ```yaml
 parts:
-  uet-lms:
-    source: .
+  your-app:
     plugin: flutter
     flutter-target: lib/main.dart
     build-packages:
@@ -432,6 +431,8 @@ Apart from `libsecret`, you also need a keyring service. This is typically alrea
 - [`gnome-keyring`](https://wiki.gnome.org/Projects/GnomeKeyring) (for Gnome users)
 - [`kwalletmanager`](https://wiki.archlinux.org/title/KDE_Wallet) (for KDE users)
 - Or a light provider such as [`secret-service`](https://github.com/yousefvand/secret-service)
+
+For more details, including known issues and CI setup, see the [`flutter_secure_storage_linux` README](https://pub.dev/packages/flutter_secure_storage_linux).
 
 ## Integration Tests
 
