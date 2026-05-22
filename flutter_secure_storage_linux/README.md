@@ -7,24 +7,72 @@ This is the platform-specific implementation of `flutter_secure_storage` for Lin
 - Secure storage using `libsecret` library.
 - Compatible with various Linux keyring services like GNOME Keyring and KDE KWallet.
 
-## Build dependencies
+## Installation
 
-Install the required development libraries before building:
+Install [libsecret](https://github.com/GNOME/libsecret) — both the development package (to build) and the runtime package (to run).
 
-```bash
-sudo apt-get install libsecret-1-dev
+<details>
+<summary>apt / dnf / pacman</summary>
+
+Ubuntu / Debian-based (Linux Mint, Pop!_OS, …):
+
+```shell
+sudo apt install libsecret-1-0 libsecret-1-dev
 ```
+
+Fedora / RHEL / CentOS:
+
+```shell
+sudo dnf install libsecret libsecret-devel
+```
+
+Arch-based (single package contains both):
+
+```shell
+sudo pacman -S libsecret
+```
+
+</details>
+
+<details>
+<summary>Flatpak / Flathub</summary>
+
+libsecret is included in Freedesktop runtime 25.08+ (also GNOME runtime 49, KDE runtime 6.10 and 5.15-25.08), so no extra manifest entry is needed:
+
+```yaml
+runtime: org.freedesktop.Platform
+runtime-version: '25.08' # must be 25.08 or newer
+```
+
+For older runtimes, use [Flathub Shared Modules](https://docs.flathub.org/docs/for-app-authors/shared-modules) (`shared-modules/libsecret/libsecret.json`), though this is no longer recommended.
+
+</details>
+
+<details>
+<summary>Snapcraft</summary>
+
+```yaml
+parts:
+  your-app:
+    plugin: flutter
+    flutter-target: lib/main.dart
+    build-packages:
+      - libsecret-1-dev
+    stage-packages:
+      - libsecret-1-0
+```
+
+</details>
 
 > **Note:** `libjsoncpp-dev` is no longer required. The plugin uses a bundled header-only JSON library.
 
-Runtime dependencies (`libsecret-1-0`) are typically pre-installed on most Linux desktops.
-
 ## Configuration
 
-A running keyring service is required at runtime:
+Apart from libsecret, a running keyring service is required at runtime. This is typically already provided by the desktop environment:
 
 - **GNOME / Ubuntu:** [`gnome-keyring`](https://wiki.gnome.org/Projects/GnomeKeyring) — usually active by default in a GNOME session.
 - **KDE:** [`kwallet`](https://wiki.archlinux.org/title/KDE_Wallet) — enabled via KDE Wallet Manager.
+- **Other / lightweight:** [`secret-service`](https://github.com/yousefvand/secret-service)
 - **Headless / CI:** start `gnome-keyring-daemon` with an unlocked keyring:
   ```bash
   eval $(dbus-launch --sh-syntax)
