@@ -99,14 +99,11 @@ class KeyCipherImplementationAES23 implements KeyCipher {
         } else {
             // IV missing, or IV exists but app key doesn't (stale from a failed/cancelled auth).
             // Start fresh with a new ENCRYPT cipher.
-            if (ivBase64 != null) {
-                preferences.edit().remove(SHARED_PREFERENCES_KEY).apply();
-            }
             cipher.init(Cipher.ENCRYPT_MODE, key);
 
             byte[] iv = cipher.getIV();
             SharedPreferences.Editor editor = preferences.edit();
-            editor.putString(SHARED_PREFERENCES_KEY,  Base64.encodeToString(iv, Base64.DEFAULT));
+            editor.putString(SHARED_PREFERENCES_KEY, Base64.encodeToString(iv, Base64.DEFAULT));
             editor.apply();
         }
 
