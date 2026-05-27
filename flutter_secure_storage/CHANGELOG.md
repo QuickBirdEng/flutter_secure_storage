@@ -1,3 +1,9 @@
+## 10.3.1
+
+### Android
+- Fixed `AEADBadTagException` when biometric authentication is cancelled on first launch: a stale IV is now cleared and the cipher re-initialised in encrypt mode so the next authentication attempt succeeds.
+- Fixed `NullPointerException` when retrying an operation after a cancelled biometric prompt: `preferences` is now only assigned once cipher initialisation completes successfully, allowing a clean retry.
+
 ## 10.3.0
 
 ### Android
